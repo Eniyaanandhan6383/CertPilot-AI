@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CertPilot — Enterprise Certification Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f7f7f8;
+    --panel:#ffffff;
+    --border:#e6e6e9;
+    --text:#0d0d0f;
+    --muted:#6b6b73;
+    --accent:#0d0d0f;
+    --red:#c0392b;
+    --amber:#b9770e;
+    --green:#1e8449;
+    --radius:10px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'Inter',sans-serif;
+    background:var(--bg);
+    color:var(--text);
+  }
+  header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:18px 32px;
+    background:var(--panel);
+    border-bottom:1px solid var(--border);
+  }
+  .brand{display:flex; align-items:center; gap:12px;}
+  .brand .logo{
+    width:36px; height:36px; border-radius:8px;
+    background:var(--accent); color:#fff;
+    display:flex; align-items:center; justify-content:center;
+    font-weight:800; font-size:14px;
+  }
+  .brand .title{font-weight:700; font-size:16px;}
+  .brand .subtitle{font-size:12px; color:var(--muted);}
+  main{max-width:1100px; margin:0 auto; padding:28px 24px 60px;}
+
+  .card{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:20px;
+  }
+  .grid{display:grid; gap:16px;}
+  .grid-4{grid-template-columns:repeat(4,1fr);}
+  .grid-2{grid-template-columns:1fr 1fr;}
+  @media(max-width:900px){
+    .grid-4{grid-template-columns:repeat(2,1fr);}
+    .grid-2{grid-template-columns:1fr;}
+  }
+
+  h2{font-size:14px; font-weight:700; margin:0 0 14px; text-transform:uppercase; letter-spacing:.04em; color:var(--muted);}
+  h3{font-size:16px; margin:0 0 4px;}
+
+  label{display:block; font-size:12px; font-weight:600; color:var(--muted); margin-bottom:4px; text-transform:uppercase; letter-spacing:.03em;}
+  input, select{
+    width:100%; padding:9px 10px; border:1px solid var(--border);
+    border-radius:6px; font-size:14px; font-family:inherit; background:#fff;
+  }
+  .field{margin-bottom:14px;}
+
+  .topic-row{display:grid; grid-template-columns:1fr 100px 36px; gap:8px; margin-bottom:8px; align-items:center;}
+  .topic-row input[type="number"]{text-align:center;}
+  .remove-btn{
+    background:#fff; border:1px solid var(--border); border-radius:6px;
+    color:var(--red); cursor:pointer; height:36px; font-size:16px; line-height:1;
+  }
+  .add-topic-btn{
+    margin-top:4px; background:#fff; border:1px dashed var(--border);
+    border-radius:6px; padding:8px 12px; cursor:pointer; font-size:13px;
+    color:var(--muted); width:100%;
+  }
+
+  .run-btn{
+    background:var(--accent); color:#fff; border:none; border-radius:8px;
+    padding:12px 22px; font-weight:700; font-size:14px; cursor:pointer;
+    width:100%; margin-top:8px;
+  }
+  .run-btn:disabled{opacity:.55; cursor:not-allowed;}
+
+  .status-banner{
+    border:1px solid var(--border); border-radius:var(--radius);
+    padding:14px 16px; font-size:13px; color:var(--muted);
+    margin-bottom:18px; display:none;
+  }
+  .status-banner.show{display:block;}
+  .status-banner.error{color:var(--red); border-color:var(--red);}
+
+  .metric-label{font-size:12px; color:var(--muted); margin-bottom:8px; text-transform:uppercase; letter-spacing:.03em;}
+  .metric-value{font-size:28px; font-weight:800;}
+  .pill{display:inline-block; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:700; margin-top:8px;}
+  .pill-high{background:#fdecea; color:var(--red);}
+  .pill-medium{background:#fdf2e0; color:var(--amber);}
+  .pill-low{background:#e9f7ef; color:var(--green);}
+
+  .gauge-wrap{display:flex; flex-direction:column; align-items:center;}
+
+  .bar-row{margin-bottom:14px;}
+  .bar-row .bar-head{display:flex; justify-content:space-between; font-size:13px; margin-bottom:6px;}
+  .bar-track{height:8px; background:#eee; border-radius:4px; overflow:hidden;}
+  .bar-fill{height:100%; border-radius:4px;}
+  .tag{font-size:10px; font-weight:700; padding:2px 8px; border-radius:10px; margin-left:8px;}
+  .tag-critical{background:#fdecea; color:var(--red);}
+  .tag-atrisk{background:#fdf2e0; color:var(--amber);}
+  .tag-ready{background:#e9f7ef; color:var(--green);}
+
+  ul.clean{margin:0; padding-left:18px; font-size:13px; line-height:1.7;}
+  ul.clean li{margin-bottom:6px;}
+
+  .section{margin-top:24px;}
+  .results{display:none;}
+  .results.show{display:block;}
+
+  .week-card{border:1px solid var(--border); border-radius:8px; padding:12px; margin-bottom:10px;}
+  .week-card h4{margin:0 0 6px; font-size:13px;}
+  .week-card p{margin:2px 0; font-size:12px; color:var(--muted);}
+
+  .intervention{border:1px solid var(--border); border-radius:8px; padding:12px; margin-bottom:10px;}
+  .intervention .top{display:flex; justify-content:space-between; font-size:13px; font-weight:700; margin-bottom:4px;}
+  .intervention p{margin:2px 0; font-size:12px; color:var(--muted);}
+
+  .question-card{border:1px solid var(--border); border-radius:8px; padding:12px; margin-bottom:10px; font-size:13px;}
+  .question-card .opts{margin-top:6px; font-size:12px; color:var(--muted);}
+  .question-card .answer{margin-top:6px; font-size:12px; font-weight:600;}
+
+  footer{text-align:center; font-size:12px; color:var(--muted); padding:30px 0;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="logo">CP</div>
+    <div>
+      <div class="title">CertPilot</div>
+      <div class="subtitle">Enterprise Certification Risk Management</div>
+    </div>
+  </div>
+  <button class="run-btn" id="runBtn" style="width:auto;">Run Analysis</button>
+</header>
+
+<main>
+
+  <div class="status-banner" id="statusBanner"></div>
+
+  <!-- INPUT FORM -->
+  <div class="card" id="formCard">
+    <h2>Employee Profile</h2>
+    <div class="grid grid-2">
+      <div>
+        <div class="field">
+          <label>Employee Name</label>
+          <input type="text" id="empName" value="Priya Nair"/>
+        </div>
+        <div class="field">
+          <label>Role</label>
+          <input type="text" id="empRole" value="Senior Cloud Architect"/>
+        </div>
+        <div class="field">
+          <label>Target Certification</label>
+          <input type="text" id="empCert" value="AZ-305"/>
+        </div>
+        <div class="grid grid-2">
+          <div class="field">
+            <label>Exam Date</label>
+            <input type="date" id="empExamDate" value="2026-06-28"/>
+          </div>
+          <div class="field">
+            <label>Days to Exam</label>
+            <input type="number" id="empDaysToExam" value="16"/>
+          </div>
+        </div>
+        <div class="grid grid-2">
+          <div class="field">
+            <label>Course Completion %</label>
+            <input type="number" id="empCompletion" value="54"/>
+          </div>
+          <div class="field">
+            <label>Study Days / Week</label>
+            <input type="number" step="0.1" id="empStudyDays" value="2.1"/>
+          </div>
+        </div>
+        <div class="field">
+          <label>Lab Completion %</label>
+          <input type="number" id="empLabCompletion" value="41"/>
+        </div>
+      </div>
+
+      <div>
+        <label>Topic-wise Quiz Scores (%)</label>
+        <div id="topicRows"></div>
+        <button class="add-topic-btn" id="addTopicBtn" type="button">+ Add topic</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="results" id="results">
+
+    <div class="grid grid-4 section">
+      <div class="card gauge-wrap">
+        <div class="metric-label">Risk Index</div>
+        <div class="metric-value" id="riskScore">—</div>
+        <div class="pill" id="riskPill">—</div>
+      </div>
+      <div class="card">
+        <div class="metric-label">Readiness Score</div>
+        <div class="metric-value" id="readinessScore">—</div>
+      </div>
+      <div class="card">
+        <div class="metric-label">Topics at Risk</div>
+        <div class="metric-value" id="topicsAtRisk">—</div>
+        <div style="font-size:12px; color:var(--muted); margin-top:6px;" id="topicsAtRiskDetail"></div>
+      </div>
+      <div class="card">
+        <div class="metric-label">Cost Liability if Failed</div>
+        <div class="metric-value" id="costLiability" style="font-size:18px;">—</div>
+        <div style="font-size:12px; color:var(--muted); margin-top:6px;" id="examRecommendation"></div>
+      </div>
+    </div>
+
+    <div class="grid grid-2 section">
+      <div class="card">
+        <h2>Topic-wise Performance Matrix</h2>
+        <div id="topicBars"></div>
+      </div>
+      <div class="card">
+        <h2>Root Cause Risk Logic</h2>
+        <ul class="clean" id="riskReasons"></ul>
+      </div>
+    </div>
+
+    <div class="grid grid-2 section">
+      <div class="card">
+        <h2>4-Week Study Plan</h2>
+        <div id="studyPlan"></div>
+      </div>
+      <div class="card">
+        <h2>Intervention Plan</h2>
+        <div id="interventions"></div>
+      </div>
+    </div>
+
+    <div class="grid grid-2 section">
+      <div class="card">
+        <h2>Manager Actions</h2>
+        <ul class="clean" id="managerActions"></ul>
+      </div>
+      <div class="card">
+        <h2>Program Optimizer</h2>
+        <div id="programHealth" style="margin-bottom:10px; font-size:13px;"></div>
+        <ul class="clean" id="programRecs"></ul>
+      </div>
+    </div>
+
+    <div class="card section">
+      <h2>Practice Questions</h2>
+      <div id="practiceQuestions"></div>
+    </div>
+
+  </div>
+
+</main>
+
+<footer>CertPilot AI — built on Microsoft Foundry · 7-agent reasoning chain</footer>
+
+<script>
+let topicCount = 0;
+const defaultTopics = {
+  "Identity & Governance": 42,
+  "Networking": 38,
+  "Monitoring & Security": 47,
+  "Data Integration": 55,
+  "Migration & Modernization": 52,
+  "Compute & App Architecture": 71
+};
+
+function addTopicRow(name = "", score = 60){
+  topicCount++;
+  const id = "topic_" + topicCount;
+  const row = document.createElement("div");
+  row.className = "topic-row";
+  row.id = id;
+  row.innerHTML = `
+    <input type="text" placeholder="Topic name" class="topic-name" value="${name}"/>
+    <input type="number" placeholder="Score %" class="topic-score" min="0" max="100" value="${score}"/>
+    <button class="remove-btn" type="button" onclick="document.getElementById('${id}').remove()">×</button>
+  `;
+  document.getElementById("topicRows").appendChild(row);
+}
+
+// Pre-fill with defaults
+Object.entries(defaultTopics).forEach(([name, score]) => addTopicRow(name, score));
+
+document.getElementById("addTopicBtn").addEventListener("click", () => addTopicRow());
+
+function collectEmployeeData(){
+  const topic_scores = {};
+  document.querySelectorAll("#topicRows .topic-row").forEach(row => {
+    const name = row.querySelector(".topic-name").value.trim();
+    const score = parseFloat(row.querySelector(".topic-score").value);
+    if(name && !isNaN(score)) topic_scores[name] = score;
+  });
+
+  return {
+    name: document.getElementById("empName").value.trim() || "Unnamed Employee",
+    role: document.getElementById("empRole").value.trim(),
+    target_cert: document.getElementById("empCert").value.trim(),
+    exam_date: document.getElementById("empExamDate").value,
+    days_to_exam: parseInt(document.getElementById("empDaysToExam").value) || 0,
+    completion_percent: parseFloat(document.getElementById("empCompletion").value) || 0,
+    study_days_per_week: parseFloat(document.getElementById("empStudyDays").value) || 0,
+    lab_completion_percent: parseFloat(document.getElementById("empLabCompletion").value) || 0,
+    topic_scores
+  };
+}
+
+function setStatus(msg, isError=false){
+  const el = document.getElementById("statusBanner");
+  el.textContent = msg;
+  el.classList.add("show");
+  el.classList.toggle("error", isError);
+}
+
+function clearStatus(){
+  const el = document.getElementById("statusBanner");
+  el.classList.remove("show","error");
+}
+
+function severityTagClass(level){
+  if(!level) return "tag-atrisk";
+  const l = level.toLowerCase();
+  if(l.includes("crit") || l.includes("high")) return "tag-critical";
+  if(l.includes("risk") || l.includes("medium")) return "tag-atrisk";
+  return "tag-ready";
+}
+
+function barColor(score){
+  if(score < 50) return "var(--red)";
+  if(score < 70) return "var(--amber)";
+  return "var(--green)";
+}
+
+function riskPillClass(level){
+  if(!level) return "pill-medium";
+  const l = level.toLowerCase();
+  if(l.includes("high")) return "pill-high";
+  if(l.includes("low")) return "pill-low";
+  return "pill-medium";
+}
+
+function renderResults(data){
+  const chain = data.certpilot_ai_chain.chain_outputs;
+  const a1 = chain.agent1_skill_gaps || {};
+  const a2 = chain.agent2_study_plan || {};
+  const a3 = chain.agent3_assessment || {};
+  const a4 = chain.agent4_risk_prediction || {};
+  const a5 = chain.agent5_intervention || {};
+  const a6 = chain.agent6_manager_dashboard || {};
+  const a7 = chain.agent7_program_optimizer || {};
+
+  // Top metrics
+  document.getElementById("riskScore").textContent = a4.risk_score ?? "—";
+  const pill = document.getElementById("riskPill");
+  pill.textContent = a4.risk_level || "—";
+  pill.className = "pill " + riskPillClass(a4.risk_level);
+
+  document.getElementById("readinessScore").textContent =
+    (a3.overall_readiness_score !== undefined ? a3.overall_readiness_score + "%" : "—");
+
+  const gaps = a1.skill_gaps || [];
+  const highGaps = gaps.filter(g => (g.gap_severity || "").toUpperCase() === "HIGH").length;
+  document.getElementById("topicsAtRisk").textContent = gaps.length;
+  document.getElementById("topicsAtRiskDetail").textContent = highGaps + " High Risk Areas";
+
+  const atRisk = (a6.at_risk_employees || [])[0];
+  document.getElementById("costLiability").textContent =
+    atRisk ? atRisk.estimated_cost_if_fails : "—";
+  document.getElementById("examRecommendation").textContent =
+    a5.exam_recommendation ? a5.exam_recommendation.toUpperCase() +
+      (a5.recommended_delay_days ? " — " + a5.recommended_delay_days + " days" : "") : "";
+
+  // Topic bars
+  const topicBars = document.getElementById("topicBars");
+  topicBars.innerHTML = "";
+  const readiness = a3.topic_readiness || [];
+  const source = readiness.length ? readiness.map(r => ({topic:r.topic, score:r.score_percent, level:r.readiness_level}))
+                                   : gaps.map(g => ({topic:g.topic, score:g.current_score, level:g.gap_severity}));
+  source.forEach(item => {
+    const score = parseFloat(item.score) || 0;
+    const div = document.createElement("div");
+    div.className = "bar-row";
+    div.innerHTML = `
+      <div class="bar-head">
+        <span>${item.topic} <span class="tag ${severityTagClass(item.level)}">${item.level || ""}</span></span>
+        <span>${score}%</span>
+      </div>
+      <div class="bar-track"><div class="bar-fill" style="width:${score}%; background:${barColor(score)};"></div></div>
+    `;
+    topicBars.appendChild(div);
+  });
+
+  // Risk reasons
+  const reasons = document.getElementById("riskReasons");
+  reasons.innerHTML = "";
+  (a4.risk_reasons || []).forEach(r => {
+    const li = document.createElement("li");
+    li.textContent = r;
+    reasons.appendChild(li);
+  });
+
+  // Study plan
+  const studyPlan = document.getElementById("studyPlan");
+  studyPlan.innerHTML = "";
+  (a2.study_plan || []).forEach(w => {
+    const div = document.createElement("div");
+    div.className = "week-card";
+    div.innerHTML = `
+      <h4>Week ${w.week}</h4>
+      <p><strong>Focus:</strong> ${(w.focus_topics || []).join(", ")}</p>
+      <p><strong>Daily hours:</strong> ${w.daily_hours}</p>
+      <p><strong>Objectives:</strong> ${(w.objectives || []).join("; ")}</p>
+      <p><strong>Resources:</strong> ${(w.resources || []).join(", ")}</p>
+    `;
+    studyPlan.appendChild(div);
+  });
+
+  // Interventions
+  const interventions = document.getElementById("interventions");
+  interventions.innerHTML = "";
+  (a5.interventions || []).forEach(i => {
+    const div = document.createElement("div");
+    div.className = "intervention";
+    div.innerHTML = `
+      <div class="top"><span>#${i.priority} — ${i.topic}</span><span>${i.delivery_mode}</span></div>
+      <p>${i.action}</p>
+      <p><strong>Resource:</strong> ${i.resource}</p>
+      <p><strong>Additional hours:</strong> ${i.additional_hours}</p>
+    `;
+    interventions.appendChild(div);
+  });
+
+  // Manager actions
+  const mgrActions = document.getElementById("managerActions");
+  mgrActions.innerHTML = "";
+  (a6.recommended_manager_actions || []).forEach(a => {
+    const li = document.createElement("li");
+    li.textContent = a;
+    mgrActions.appendChild(li);
+  });
+  if(atRisk){
+    const li = document.createElement("li");
+    li.innerHTML = `<strong>${atRisk.name}:</strong> ${atRisk.risk_summary} Action due ${atRisk.deadline}.`;
+    mgrActions.prepend(li);
+  }
+
+  // Program optimizer
+  document.getElementById("programHealth").innerHTML =
+    `<strong>Program Health:</strong> ${a7.overall_program_health || "—"}<br/>
+     <strong>Estimated Total Waste:</strong> ${(a7.estimated_wasted_spend || {}).total_estimated_waste || "—"}<br/>
+     <strong>Priority Action:</strong> ${a7.priority_action || "—"}`;
+
+  const progRecs = document.getElementById("programRecs");
+  progRecs.innerHTML = "";
+  (a7.program_recommendations || []).forEach(r => {
+    const li = document.createElement("li");
+    li.textContent = r;
+    progRecs.appendChild(li);
+  });
+
+  // Practice questions
+  const pq = document.getElementById("practiceQuestions");
+  pq.innerHTML = "";
+  (a3.practice_questions || []).forEach(q => {
+    const div = document.createElement("div");
+    div.className = "question-card";
+    const opts = q.options || {};
+    const optsHtml = Object.entries(opts).map(([k,v]) => `${k}. ${v}`).join("<br/>");
+    div.innerHTML = `
+      <div><strong>${q.topic}</strong></div>
+      <div style="margin-top:6px;">${q.question}</div>
+      <div class="opts">${optsHtml}</div>
+      <div class="answer">Answer: ${q.correct_answer} — ${q.explanation || ""}</div>
+    `;
+    pq.appendChild(div);
+  });
+
+  document.getElementById("results").classList.add("show");
+}
+
+async function runChain(){
+  const btn = document.getElementById("runBtn");
+  btn.disabled = true;
+  btn.textContent = "Running...";
+  clearStatus();
+  setStatus("Running the 7-agent reasoning chain — this takes roughly 60-90 seconds.");
+
+  try{
+    const employee = collectEmployeeData();
+    const res = await fetch("/run-chain", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify(employee)
+    });
+    const json = await res.json();
+    if(!res.ok || json.status !== "success"){
+      throw new Error(json.detail || "Run failed");
+    }
+    clearStatus();
+    renderResults(json.data);
+  }catch(err){
+    setStatus("Error: " + err.message, true);
+  }finally{
+    btn.disabled = false;
+    btn.textContent = "Run Analysis";
+  }
+}
+
+document.getElementById("runBtn").addEventListener("click", runChain);
+
+// Removed auto-loading of last output so the form resets properly
+</script>
+
+</body>
+</html>
