@@ -161,39 +161,39 @@
       <div>
         <div class="field">
           <label>Employee Name</label>
-          <input type="text" id="empName" value="Priya Nair"/>
+          <input type="text" id="empName" placeholder="e.g., Priya Nair"/>
         </div>
         <div class="field">
           <label>Role</label>
-          <input type="text" id="empRole" value="Senior Cloud Architect"/>
+          <input type="text" id="empRole" placeholder="e.g., Senior Cloud Architect"/>
         </div>
         <div class="field">
           <label>Target Certification</label>
-          <input type="text" id="empCert" value="AZ-305"/>
+          <input type="text" id="empCert" placeholder="e.g., AZ-305"/>
         </div>
         <div class="grid grid-2">
           <div class="field">
             <label>Exam Date</label>
-            <input type="date" id="empExamDate" value="2026-06-28"/>
+            <input type="date" id="empExamDate"/>
           </div>
           <div class="field">
             <label>Days to Exam</label>
-            <input type="number" id="empDaysToExam" value="16"/>
+            <input type="number" id="empDaysToExam" placeholder="e.g., 16"/>
           </div>
         </div>
         <div class="grid grid-2">
           <div class="field">
             <label>Course Completion %</label>
-            <input type="number" id="empCompletion" value="54"/>
+            <input type="number" id="empCompletion" placeholder="e.g., 54"/>
           </div>
           <div class="field">
             <label>Study Days / Week</label>
-            <input type="number" step="0.1" id="empStudyDays" value="2.1"/>
+            <input type="number" step="0.1" id="empStudyDays" placeholder="e.g., 2.1"/>
           </div>
         </div>
         <div class="field">
           <label>Lab Completion %</label>
-          <input type="number" id="empLabCompletion" value="41"/>
+          <input type="number" id="empLabCompletion" placeholder="e.g., 41"/>
         </div>
       </div>
 
@@ -277,31 +277,31 @@
 
 <script>
 let topicCount = 0;
-const defaultTopics = {
-  "Identity & Governance": 42,
-  "Networking": 38,
-  "Monitoring & Security": 47,
-  "Data Integration": 55,
-  "Migration & Modernization": 52,
-  "Compute & App Architecture": 71
-};
+const topicExamples = [
+  ["Identity & Governance", 42],
+  ["Networking", 38],
+  ["Monitoring & Security", 47],
+  ["Data Integration", 55],
+  ["Migration & Modernization", 52],
+  ["Compute & App Architecture", 71]
+];
 
-function addTopicRow(name = "", score = 60){
+function addTopicRow(namePlaceholder = "Topic name", scorePlaceholder = "Score %"){
   topicCount++;
   const id = "topic_" + topicCount;
   const row = document.createElement("div");
   row.className = "topic-row";
   row.id = id;
   row.innerHTML = `
-    <input type="text" placeholder="Topic name" class="topic-name" value="${name}"/>
-    <input type="number" placeholder="Score %" class="topic-score" min="0" max="100" value="${score}"/>
+    <input type="text" placeholder="e.g., ${namePlaceholder}" class="topic-name"/>
+    <input type="number" placeholder="e.g., ${scorePlaceholder}" class="topic-score" min="0" max="100"/>
     <button class="remove-btn" type="button" onclick="document.getElementById('${id}').remove()">×</button>
   `;
   document.getElementById("topicRows").appendChild(row);
 }
 
-// Pre-fill with defaults
-Object.entries(defaultTopics).forEach(([name, score]) => addTopicRow(name, score));
+// Show examples as placeholders only; users should enter real values.
+topicExamples.forEach(([name, score]) => addTopicRow(name, score));
 
 document.getElementById("addTopicBtn").addEventListener("click", () => addTopicRow());
 
